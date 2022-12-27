@@ -24,4 +24,4 @@ jobs:
     - name: Build Dockerfile
       run: docker build . -t demo1:latest
     - name: Run docker image for a bit!
-      run: timeout 10 docker run -it demo1:latest || true
+      run: timeout 10 docker run demo1:latest || true
