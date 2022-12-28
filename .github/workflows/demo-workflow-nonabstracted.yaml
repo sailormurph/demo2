@@ -22,7 +22,7 @@ jobs:
     - name: Test valid spring boot boot (pun intended)
       run: timeout 10 java -jar ./demo1.jar || true
     - name: Build Dockerfile
-      run: docker build . -t demo1:latest --build-arg jar-name=demo1.jar
+      run: docker build . -t demo1:latest --build-arg jar_name=demo1.jar
     - name: Test valid container run
       run: timeout 10 docker run demo1:latest || true
     - name: Push container to registry

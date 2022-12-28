@@ -2,7 +2,7 @@ name: GM build spring boot template
 on:
   workflow_call:
     inputs:
-      jar-name:
+      jar_name:
         required: true
         type: string
       container-name:
@@ -25,11 +25,11 @@ jobs:
     - name: Build java
       run: mvn clean install
     - name: Set permissions & move
-      run: chmod 700 ./target/*.jar && mv ./target/*.jar ./${{inputs.jar-name}}
+      run: chmod 700 ./target/*.jar && mv ./target/*.jar ./${{inputs.jar_name}}
     - name: Test valid spring boot boot (pun intended)
-      run: timeout 10 java -jar ./${{inputs.jar-name}} || true
+      run: timeout 10 java -jar ./${{inputs.jar_name}} || true
     - name: Build Dockerfile
-      run: docker build . -t ${{inputs.container-name}}:latest --build-arg jar-name=${{inputs.jar-name}}
+      run: docker build . -t ${{inputs.container-name}}:latest --build-arg jar_name=${{inputs.jar_name}}
     - name: Test valid container run
       run: timeout 10 docker run ${{inputs.container-name}}:latest || true
     - name: Push container to registry
