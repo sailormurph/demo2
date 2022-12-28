@@ -1,0 +1,11 @@
+
+
+name: Build Spring Boot Abstracted
+on: [push]
+run-name: ${{ github.actor }} Has pushed code! Abstracted run 🚀
+jobs:
+  build:
+    uses: sailormurph/demo1/.gitlab/workflows/demo-workflow-reusable.yaml@main
+    with:
+      container-name: myspringbootcontainer
+      jar-name: myspringbootjar
