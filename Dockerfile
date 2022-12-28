@@ -4,4 +4,4 @@ ENV jarname ${jarname}
 RUN printf '#!/bin/bash\n' > entrypoint.sh && printf "echo PID \$$\nexec java -jar ${jarname}\n" >> entrypoint.sh && chmod 777 entrypoint.sh
 COPY ${jarname} .
 COPY entrypoint.sh .
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
