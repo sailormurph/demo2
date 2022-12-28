@@ -1,3 +1,7 @@
 FROM ibm-semeru-runtimes:open-17-jre-jammy
-COPY demo1.jar .
-ENTRYPOINT ["java", "-jar", "demo1.jar"]
+ARG jarname
+ENV jarname ${jarname}
+RUN printf '#!/bin/bash\n' > entrypoint.sh && printf "echo PID \$$\nexec java -jar ${jarname}\n" >> entrypoint.sh && chmod 777 entrypoint.sh
+COPY ${jarname} .
+COPY ${entrypoint.sh} .
+ENTRYPOINT ["entrypoint.sh"]
