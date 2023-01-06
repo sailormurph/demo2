@@ -6,3 +6,4 @@ Tekton demo relies on:
 - tkn hub install task kaniko
 - kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/openshift-tekton-dashboard-release.yaml --validate=false
 - oc --namespace openshift-pipelines port-forward svc/tekton-dashboard 9097:9097 then localhost:9097 for tekton dashboard
+- Some readme change here
