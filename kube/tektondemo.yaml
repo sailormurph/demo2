@@ -1,0 +1,105 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: GM Spring boot
+  namespace: gmci
+spec:
+  description: | 
+    This pipeline clones a git repo, then echoes the README file to the stout.
+  params:
+  - name: repo-url
+    type: string
+    description: The git repo URL to clone from.
+    default: https://github.com/sailormurph/demo2.git
+  workspaces:
+  - name: shared-data
+    description: | 
+      This workspace contains the cloned repo files, so they can be read by the
+      next task.
+  tasks:
+  - name: fetch-source
+    taskRef:
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: shared-data
+    params:
+    - name: url
+      value: $(params.repo-url)
+  - name: build-java-app
+    runAfter: ["fetch-source"]
+    taskRef:
+      name: build-java-app
+    workspaces:
+    - name: source
+      workspace: shared-data
+  - name: test-java-app
+    runAfter: ["build-java-app"]
+    taskRef:
+      name: test-java-app
+    workspaces:
+    - name: source
+      workspace: shared-data
+  # - name: build-container-buildah
+  #   runAfter: ["test-java-app"]
+  #   taskRef:
+  #     name: buildah
+  #   params:
+  #   - name: IMAGE
+  #     value: myspringbootcontainer
+  #   - name: SKIP_PUSH
+  #     value: true
+  #   workspaces:
+  #   - name: source
+  #     workspace: shared-data
+  - name: build-container-kaniko
+    runAfter: ["test-java-app"]
+    taskRef:
+      name: kaniko
+    params:
+    - name: IMAGE
+      value: myspringbootcontainer
+    # - name: CONTEXT
+    #   value: /workspace/source
+    # - name: DOCKERFILE
+    #   value: /workspace/source/Dockerfile
+    - name: EXTRA_ARGS
+      value: ["--no-push"]
+    workspaces:
+    - name: source
+      workspace: shared-data
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: test-java-app
+  description: Tests Java app!
+  namespace: gmci
+spec:
+  workspaces:
+  - name: source
+  steps:
+  - name: test
+    image: busybox:latest
+    script: | 
+      #!/usr/bin/env sh
+      echo "Some tests here!"
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-java-app
+  description: Builds Java app!
+  namespace: gmci
+spec:
+  workspaces:
+  - name: source
+  steps:
+  - name: maven
+    image: maven:3.8.7-eclipse-temurin-17
+    script: | 
+      #!/usr/bin/env bash
+      cd $(workspaces.source.path)
+      ls -lath
+      mvn clean install
+      chmod 700 ./target/*.jar && mv ./target/*.jar ./demo2.jar
