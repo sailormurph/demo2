@@ -1,11 +1,12 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: GM Spring boot
+  name: gm-spring-boot
   namespace: gmci
 spec:
   description: | 
-    This pipeline clones a git repo, then echoes the README file to the stout.
+    This pipeline is a demo pipeline for spring boot apps
+    
   params:
   - name: repo-url
     type: string
@@ -16,6 +17,7 @@ spec:
     description: | 
       This workspace contains the cloned repo files, so they can be read by the
       next task.
+
   tasks:
   - name: fetch-source
     taskRef:
@@ -26,6 +28,7 @@ spec:
     params:
     - name: url
       value: $(params.repo-url)
+
   - name: build-java-app
     runAfter: ["fetch-source"]
     taskRef:
@@ -33,6 +36,7 @@ spec:
     workspaces:
     - name: source
       workspace: shared-data
+
   - name: test-java-app
     runAfter: ["build-java-app"]
     taskRef:
@@ -40,18 +44,7 @@ spec:
     workspaces:
     - name: source
       workspace: shared-data
-  # - name: build-container-buildah
-  #   runAfter: ["test-java-app"]
-  #   taskRef:
-  #     name: buildah
-  #   params:
-  #   - name: IMAGE
-  #     value: myspringbootcontainer
-  #   - name: SKIP_PUSH
-  #     value: true
-  #   workspaces:
-  #   - name: source
-  #     workspace: shared-data
+
   - name: build-container-kaniko
     runAfter: ["test-java-app"]
     taskRef:
@@ -59,10 +52,6 @@ spec:
     params:
     - name: IMAGE
       value: myspringbootcontainer
-    # - name: CONTEXT
-    #   value: /workspace/source
-    # - name: DOCKERFILE
-    #   value: /workspace/source/Dockerfile
     - name: EXTRA_ARGS
       value: ["--no-push"]
     workspaces:
